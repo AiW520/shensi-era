@@ -1,8 +1,9 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { SceneBoundary, useSceneEnvironment } from "./SceneEnvironment";
 
 function StarRiver() {
   const riverRef = useRef<THREE.Points>(null);
@@ -70,8 +71,11 @@ function CameraDrift() {
 }
 
 export default function MusicUniverse() {
-  return <div className="cosmos-canvas" aria-hidden="true"><Canvas dpr={[1, 1.4]} camera={{ position: [0, 0.2, 10], fov: 44 }} gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}>
+  const ref = useRef<HTMLDivElement>(null);
+  const environment = useSceneEnvironment(ref);
+  const [failed, setFailed] = useState(false);
+  return <div ref={ref} className="cosmos-canvas" aria-hidden="true">{environment.ready && environment.webgl && !environment.reducedMotion && !environment.lowPower && !failed && <SceneBoundary onFailure={() => setFailed(true)} fallback={null}><Canvas frameloop={environment.visible ? "always" : "never"} dpr={[1, 1.4]} camera={{ position: [0, 0.2, 10], fov: 44 }} gl={{ alpha: true, antialias: true, powerPreference: "default" }} onCreated={({ gl }) => { gl.domElement.addEventListener("webglcontextlost", () => setFailed(true), { once: true }); }}>
     <fog attach="fog" args={["#050b0d", 9, 28]} /><ambientLight intensity={0.35} /><directionalLight position={[5, 4, 6]} color="#e8d7a2" intensity={1.4} />
     <StarRiver /><CelestialCore /><CameraDrift />
-  </Canvas></div>;
+  </Canvas></SceneBoundary>}</div>;
 }

@@ -6,5 +6,7 @@ out/
 *.tsbuildinfo
 .DS_Store
 Thumbs.db
+test-results/
+playwright-report/
 .env*
 !.env.example

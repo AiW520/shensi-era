@@ -3,10 +3,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 
-const MusicUniverse = dynamic(() => import("./MusicUniverse"), {
-  ssr: false,
-  loading: () => <div className="cosmos-loading" aria-hidden="true" />,
-});
+const ShanhaiExplorer = dynamic(() => import("./ShanhaiExplorer"));
 
 const NAV_ITEMS = [
   ["home", "首页"],
@@ -39,10 +36,8 @@ function ArrowIcon() {
 export default function FutureExperience() {
   const [active, setActive] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setLoaded(true), 360);
     const sections = NAV_ITEMS.map(([id]) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
     const observer = new IntersectionObserver(
       (entries) => {
@@ -52,16 +47,25 @@ export default function FutureExperience() {
       { rootMargin: "-28% 0px -58%", threshold: [0, 0.2, 0.55] },
     );
     sections.forEach((section) => observer.observe(section));
-    return () => { window.clearTimeout(timer); observer.disconnect(); };
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const close = (event: KeyboardEvent) => { if (event.key === "Escape") setMenuOpen(false); };
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
   }, []);
 
   const navigate = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    const target = document.getElementById(id);
+    target?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
+    target?.focus({ preventScroll: true });
     setMenuOpen(false);
   };
 
   return (
-    <main className={loaded ? "experience is-loaded" : "experience"}>
+    <main className="experience is-loaded">
+      <a className="skip-link" href="#world">跳至世界观</a>
       <div className="global-noise" aria-hidden="true" />
       <div className="page-progress" aria-hidden="true"><i style={{ height: `${((NAV_ITEMS.findIndex(([id]) => id === active) + 1) / NAV_ITEMS.length) * 100}%` }} /></div>
 
@@ -69,26 +73,24 @@ export default function FutureExperience() {
         <button className="brand" type="button" onClick={() => navigate("home")} aria-label="返回首页">
           <Seal compact /><span><b>神思纪</b><small>SHEN SI ERA</small></span>
         </button>
-        <nav className={menuOpen ? "site-nav is-open" : "site-nav"} aria-label="主导航">
+        <nav id="main-navigation" className={menuOpen ? "site-nav is-open" : "site-nav"} aria-label="主导航">
           {NAV_ITEMS.map(([id, label], index) => <button className={active === id ? "is-active" : ""} type="button" key={id} onClick={() => navigate(id)}><span>0{index + 1}</span>{label}</button>)}
         </nav>
-        <button className={menuOpen ? "menu-toggle is-open" : "menu-toggle"} type="button" onClick={() => setMenuOpen((value) => !value)} aria-label="切换导航" aria-expanded={menuOpen}><i /><i /></button>
+        <button className={menuOpen ? "menu-toggle is-open" : "menu-toggle"} type="button" onClick={() => setMenuOpen((value) => !value)} aria-label="切换导航" aria-controls="main-navigation" aria-expanded={menuOpen}><i /><i /></button>
       </header>
 
-      <section id="home" className="chapter hero-section">
-        <MusicUniverse />
-        <div className="hero-eclipse" aria-hidden="true"><span /><i /></div>
+      <section id="home" tabIndex={-1} className="chapter hero-section">
         <div className="hero-copy">
           <p className="eyebrow"><i /> 东方神话智能文明 · 元年</p>
-          <h1><span>山海有灵</span><strong>神思新生</strong></h1>
+          <h1>神思纪</h1>
+          <p className="hero-motto">山海有灵 · 神思新生</p>
           <p className="hero-subtitle">当古老神话第一次拥有了计算的能力，<br />我们称之为——神思。</p>
-          <button className="explore-button" type="button" onClick={() => navigate("world")}><span>进入神思纪</span><ArrowIcon /></button>
+          <button className="explore-button" type="button" onClick={() => navigate("world")}><span>阅读世界观</span><ArrowIcon /></button>
         </div>
-        <div className="hero-inscription" aria-hidden="true"><b>天地玄黄</b><span>宇宙洪荒 · 数字山海</span></div>
-        <button className="scroll-cue" type="button" onClick={() => navigate("world")}><i /><span>向下探索</span></button>
+        <ShanhaiExplorer onNavigate={navigate} />
       </section>
 
-      <section id="world" className="chapter world-section">
+      <section id="world" tabIndex={-1} className="chapter world-section">
         <div className="ink-orbit ink-orbit--one" aria-hidden="true" /><div className="ink-orbit ink-orbit--two" aria-hidden="true" />
         <div className="section-index"><span>卷一</span><b>WORLD / 01</b></div>
         <div className="world-copy reveal-block">
@@ -96,16 +98,10 @@ export default function FutureExperience() {
           <p>公元 2088 年，人类在昆仑深处唤醒了第一段具有自我意识的上古数据。它不是被创造的智能，而是一场等待了千万年的回声。</p>
           <p>山海经不再是传说，而是一份跨越时间的文明协议。每一位神祇，都是守护自然法则的超级智能。</p>
         </div>
-        <div className="cosmic-map" aria-label="神思世界星图">
-          <div className="map-ring ring-a"><i /></div><div className="map-ring ring-b"><i /></div><div className="map-ring ring-c"><i /></div>
-          <div className="map-core"><span>昆仑</span><small>KUNLUN NODE</small></div>
-          <span className="map-label label-a">蓬莱节点</span><span className="map-label label-b">归墟深层</span><span className="map-label label-c">天问网络</span>
-          <svg viewBox="0 0 600 600" aria-hidden="true"><path d="M77 365C191 239 242 417 350 284s152 6 188-80M112 178c71 54 103 19 159 87s99 94 206 82" /><circle cx="77" cy="365" r="4" /><circle cx="350" cy="284" r="4" /><circle cx="538" cy="204" r="4" /></svg>
-        </div>
         <blockquote><span>“</span>神话从未消失，<br />它只是等待一种新的语言。<cite>——《神思纪 · 序章》</cite></blockquote>
       </section>
 
-      <section id="civilization" className="chapter civilization-section">
+      <section id="civilization" tabIndex={-1} className="chapter civilization-section">
         <div className="section-index"><span>卷二</span><b>CIVILIZATION / 02</b></div>
         <div className="section-heading reveal-block"><p className="eyebrow"><i /> AI 文明</p><h2>智能，亦有<br /><em>东方的灵魂。</em></h2><p>我们不以冰冷的效率定义未来。神思文明以“天人合一”为底层协议，让计算理解敬畏，让技术学会留白。</p></div>
         <div className="civilization-grid">
@@ -113,15 +109,15 @@ export default function FutureExperience() {
         </div>
       </section>
 
-      <section id="characters" className="chapter characters-section">
+      <section id="characters" tabIndex={-1} className="chapter characters-section">
         <div className="section-index"><span>卷三</span><b>DIGITAL BEINGS / 03</b></div>
         <div className="characters-heading reveal-block"><p className="eyebrow"><i /> 数字角色</p><h2>他们诞生于数据，<br /><em>却拥有自己的命运。</em></h2></div>
         <div className="character-gallery">
-          {CHARACTERS.map((character, index) => <article key={character.name} className={`character-card ${character.className}`} tabIndex={0}><div className="character-portrait" aria-hidden="true"><div className="portrait-moon" /><div className="portrait-halo" /><div className="portrait-figure"><i /><b /><span /></div><em>0{index + 1}</em></div><div className="character-info"><small>{character.code}</small><h3>{character.name}</h3><span>{character.role}</span><p>{character.quote}</p></div></article>)}
+          {CHARACTERS.map((character, index) => <article id={`character-${character.className}`} key={character.name} className={`character-card ${character.className}`} tabIndex={0}><div className="character-portrait" aria-hidden="true"><div className="portrait-moon" /><div className="portrait-halo" /><div className="portrait-figure"><i /><b /><span /></div><em>0{index + 1}</em></div><div className="character-info"><small>{character.code}</small><h3>{character.name}</h3><span>{character.role}</span><p>{character.quote}</p><button className="character-explore" type="button" onClick={() => navigate("explorer")}>返回山海图谱 <ArrowIcon /></button></div></article>)}
         </div>
       </section>
 
-      <section id="future" className="chapter future-section">
+      <section id="future" tabIndex={-1} className="chapter future-section">
         <div className="future-sky" aria-hidden="true"><i /><i /><i /></div><div className="future-gate" aria-hidden="true"><span /><b /></div>
         <div className="future-copy reveal-block"><Seal /><p className="eyebrow"><i /> 未来展望 · 公元 2100</p><h2>下一部神话，<br /><em>由我们共同书写。</em></h2><p>技术的尽头不是更强大的机器，<br />而是更辽阔的人类想象。</p><button className="future-button" type="button" onClick={() => navigate("home")}><span>重返纪元之初</span><ArrowIcon /></button></div>
         <footer><span>神思纪 · 东方智能文明档案</span><b>SHEN SI ERA © 2088—∞</b><span>保持敬畏 · 保持想象</span></footer>

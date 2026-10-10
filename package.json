@@ -6,29 +6,37 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "playwright test",
+    "preview": "node scripts/serve-export.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.4.0",
     "framer-motion": "^12.23.24",
+    "gsap": "^3.13.0",
+    "lucide-react": "^1.53.0",
     "next": "15.5.7",
     "react": "19.1.1",
     "react-dom": "19.1.1",
-    "three": "^0.181.1",
-    "gsap": "^3.13.0"
+    "three": "^0.181.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.0",
     "@types/node": "^22.10.2",
+    "@types/pngjs": "^6.0.5",
     "@types/react": "^19.0.6",
     "@types/react-dom": "^19.0.2",
     "@types/three": "^0.181.0",
     "autoprefixer": "^10.4.20",
+    "pngjs": "^7.0.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["sharp"]
+    "onlyBuiltDependencies": [
+      "sharp"
+    ]
   }
 }

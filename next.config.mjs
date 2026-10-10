@@ -5,6 +5,7 @@ const basePath = isProjectPages ? `/${repository}` : "";
 
 const nextConfig = {
   output: "export",
+  experimental: { cpus: 2 },
   reactStrictMode: true,
   poweredByHeader: false,
   trailingSlash: true,
